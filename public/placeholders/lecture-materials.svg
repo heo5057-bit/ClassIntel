@@ -1,0 +1,13 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="1000" x2="1600" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg2)"/>
+  <rect x="140" y="160" width="1320" height="680" rx="24" fill="#022C22" fill-opacity="0.65" stroke="#5EEAD4" stroke-opacity="0.45"/>
+  <text x="210" y="320" fill="#E6FFFA" font-family="Segoe UI, Arial" font-size="58" font-weight="700">Placeholder Photo 02</text>
+  <text x="210" y="390" fill="#99F6E4" font-family="Segoe UI, Arial" font-size="34">Lecture Materials</text>
+  <text x="210" y="470" fill="#CCFBF1" font-family="Segoe UI, Arial" font-size="28">Replace with real course notes/slides image.</text>
+</svg>
