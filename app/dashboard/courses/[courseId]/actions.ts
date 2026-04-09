@@ -9,7 +9,7 @@ import {
 } from "@/src/domain/workspace/workspace-service";
 import { createSupabaseServerClient } from "@/src/supabase/server";
 
-const MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024;
+const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [
   ".pdf",
   ".txt",
@@ -86,7 +86,7 @@ export async function uploadMaterialAction(formData: FormData) {
     redirect(
       buildCoursePagePath(courseId, {
         type: "error",
-        text: "File is too large. Please upload files up to 20 MB.",
+        text: "This file is too large to upload. Please upload a PDF under 10 MB.",
       }),
     );
   }
@@ -160,14 +160,39 @@ export async function runAnalysisAction(formData: FormData) {
     return;
   }
 
-  await runWorkspaceAnalysis({
-    userId: user.id,
-    courseId,
-  });
+  try {
+    console.info("runAnalysisAction:start", {
+      courseId,
+      userId: user.id,
+    });
+    await runWorkspaceAnalysis({
+      userId: user.id,
+      courseId,
+    });
 
-  revalidatePath(`/dashboard/courses/${courseId}`);
-  revalidatePath(`/dashboard/courses/${courseId}/study-guide`);
-  revalidatePath(`/dashboard/courses/${courseId}/practice-quiz`);
-  revalidatePath(`/dashboard/courses/${courseId}/flashcards`);
-  revalidatePath(`/dashboard/courses/${courseId}/quick-review`);
+    revalidatePath(`/dashboard/courses/${courseId}`);
+    revalidatePath(`/dashboard/courses/${courseId}/study-guide`);
+    revalidatePath(`/dashboard/courses/${courseId}/practice-quiz`);
+    revalidatePath(`/dashboard/courses/${courseId}/flashcards`);
+    revalidatePath(`/dashboard/courses/${courseId}/quick-review`);
+  } catch (error) {
+    console.error("runAnalysisAction:failed", {
+      courseId,
+      userId: user.id,
+      error,
+    });
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Failed to generate study assets. Please try again.";
+    redirect(
+      `/dashboard/courses/${courseId}?analysisError=${encodeURIComponent(message)}`,
+    );
+  }
+
+  redirect(
+    `/dashboard/courses/${courseId}?analysisSuccess=${encodeURIComponent(
+      "Study assets generated successfully.",
+    )}`,
+  );
 }

@@ -95,22 +95,25 @@ export async function replaceCourseTopics(input: {
     reasons: string[];
   }>;
 }): Promise<void> {
-  await prisma.$transaction([
-    prisma.extractedTopic.deleteMany({ where: { courseId: input.courseId } }),
-    prisma.extractedTopic.createMany({
-      data: input.topics.map((topic) => ({
-        courseId: input.courseId,
-        title: topic.title,
-        summary: topic.summary,
-        keyPhrases: topic.keyPhrases,
-        occurrenceCount: topic.occurrenceCount,
-        evidenceCount: topic.evidenceCount,
-        emphasisScore: topic.emphasisScore,
-        confidence: topic.confidence,
-        reasons: topic.reasons,
-      })),
-    }),
-  ]);
+  await prisma.extractedTopic.deleteMany({ where: { courseId: input.courseId } });
+
+  if (input.topics.length === 0) {
+    return;
+  }
+
+  await prisma.extractedTopic.createMany({
+    data: input.topics.map((topic) => ({
+      courseId: input.courseId,
+      title: topic.title,
+      summary: topic.summary,
+      keyPhrases: topic.keyPhrases,
+      occurrenceCount: topic.occurrenceCount,
+      evidenceCount: topic.evidenceCount,
+      emphasisScore: topic.emphasisScore,
+      confidence: topic.confidence,
+      reasons: topic.reasons,
+    })),
+  });
 }
 
 export async function createAnalysisRun(input: {

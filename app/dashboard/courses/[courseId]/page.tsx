@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WorkspaceShell } from "@/src/components/product/workspace-shell";
+import {
+  GenerateAssetsForm,
+  UploadMaterialForm,
+} from "@/src/components/product/workspace-forms";
 import { requireAuthenticatedUser } from "@/src/auth/guards";
 import { getWorkspaceOverview } from "@/src/domain/workspace/workspace-service";
 import {
@@ -16,6 +20,8 @@ type WorkspacePageProps = {
   searchParams?: Promise<{
     uploadError?: string;
     uploadSuccess?: string;
+    analysisError?: string;
+    analysisSuccess?: string;
   }>;
 };
 
@@ -90,6 +96,8 @@ export default async function CourseWorkspacePage({
   const readyForAssets = workspace.status.readyMaterials > 0;
   const uploadError = decodeMessage(query?.uploadError);
   const uploadSuccess = decodeMessage(query?.uploadSuccess);
+  const analysisError = decodeMessage(query?.analysisError);
+  const analysisSuccess = decodeMessage(query?.analysisSuccess);
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
@@ -103,6 +111,16 @@ export default async function CourseWorkspacePage({
           {uploadSuccess}
         </div>
       ) : null}
+      {analysisError ? (
+        <div className="mb-4 rounded-lg border border-rose-600/40 bg-rose-950/40 px-4 py-3 text-sm text-rose-200">
+          {analysisError}
+        </div>
+      ) : null}
+      {analysisSuccess ? (
+        <div className="mb-4 rounded-lg border border-emerald-600/40 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-200">
+          {analysisSuccess}
+        </div>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 lg:col-span-1">
           <h2 className="text-lg font-semibold">Upload Materials</h2>
@@ -110,32 +128,13 @@ export default async function CourseWorkspacePage({
             Add lecture slides, notes, study guides, homework, and past exams.
             Files are stored per course workspace.
           </p>
-          <form action={uploadMaterialAction} className="mt-5 space-y-3">
-            <input type="hidden" name="courseId" value={courseId} />
-            <label className="block text-sm">
-              <span className="mb-1 block text-slate-300">Choose file</span>
-              <input
-                type="file"
-                name="material"
-                required
-                accept=".pdf,.txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp,.doc,.docx"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-              />
-            </label>
-            <button className="w-full rounded-lg bg-cyan-500 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-400">
-              Upload Materials
-            </button>
-          </form>
+          <UploadMaterialForm courseId={courseId} action={uploadMaterialAction} />
 
-          <form action={runAnalysisAction} className="mt-4">
-            <input type="hidden" name="courseId" value={courseId} />
-            <button
-              className="w-full rounded-lg border border-cyan-400/70 px-4 py-2 font-semibold text-cyan-200 hover:bg-cyan-500/10 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!readyForAssets}
-            >
-              Generate Study Assets
-            </button>
-          </form>
+          <GenerateAssetsForm
+            courseId={courseId}
+            action={runAnalysisAction}
+            disabled={!readyForAssets}
+          />
           <p className="mt-2 text-xs text-slate-400">
             Analysis is pattern-based and does not claim exact exam prediction.
           </p>

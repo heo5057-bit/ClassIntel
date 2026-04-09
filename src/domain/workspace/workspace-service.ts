@@ -266,9 +266,21 @@ export async function runWorkspaceAnalysis(input: {
     userId: input.userId,
     courseId: input.courseId,
   });
+  console.info("runWorkspaceAnalysis:start", {
+    courseId: input.courseId,
+    userId: input.userId,
+    materialCount: materials.length,
+    readyCount: materials.filter((material) => material.status === "READY").length,
+  });
 
   const rankedTopics = rankProfessorTopics({ materials });
   const providerOutput = await runProfessorModeProvider({ rankedTopics });
+  console.info("runWorkspaceAnalysis:ranked", {
+    courseId: input.courseId,
+    userId: input.userId,
+    rankedTopicCount: providerOutput.topics.length,
+    modelName: providerOutput.modelName,
+  });
 
   await replaceCourseTopics({
     courseId: input.courseId,
@@ -319,6 +331,10 @@ export async function runWorkspaceAnalysis(input: {
       payload: asJson(assets.quickReview),
     }),
   ]);
+  console.info("runWorkspaceAnalysis:assets_saved", {
+    courseId: input.courseId,
+    userId: input.userId,
+  });
 }
 
 export async function getWorkspaceStudyAsset(input: {
