@@ -11,13 +11,14 @@ type SignInPageProps = {
     error?: string;
     message?: string;
     next?: string;
+    signupError?: string;
   }>;
 };
 
 const errorMessageByCode: Record<string, string> = {
   missing_credentials: "Please provide an email and password.",
   invalid_credentials: "Invalid email or password.",
-  signup_failed: "Sign up failed. Try a different email.",
+  signup_failed: "Unable to create account. Please try again.",
   password_mismatch: "Passwords do not match.",
 };
 
@@ -36,7 +37,24 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   }
 
   const params = await searchParams;
-  const errorMessage = params?.error ? errorMessageByCode[params.error] : null;
+  const signupErrorMessage = (() => {
+    if (!params?.signupError) {
+      return null;
+    }
+
+    try {
+      const decoded = decodeURIComponent(params.signupError).trim();
+      return decoded || null;
+    } catch {
+      return params.signupError.trim() || null;
+    }
+  })();
+
+  const errorMessage = signupErrorMessage
+    ? signupErrorMessage
+    : params?.error
+      ? errorMessageByCode[params.error] ?? "Unable to create account. Please try again."
+      : null;
   const noticeMessage = params?.message
     ? noticeMessageByCode[params.message]
     : null;

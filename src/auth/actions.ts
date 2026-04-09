@@ -59,7 +59,10 @@ export async function signUpWithEmail(formData: FormData) {
   });
 
   if (error) {
-    redirect("/auth/sign-in?error=signup_failed");
+    const rawMessage = error.message?.trim();
+    const fallbackMessage = "Unable to create account. Please try again.";
+    const message = encodeURIComponent(rawMessage || fallbackMessage);
+    redirect(`/auth/sign-in?error=signup_failed&signupError=${message}`);
   }
 
   if (!data.session) {
