@@ -72,7 +72,7 @@ export default function HomePage() {
 
           {/* TODO: Replace /me-1.jpg with your final homepage hero image. */}
           <MarketingImage
-            src="/me-1.jpg"
+            src="/me-1.png"
             alt="Students collaborating with laptops and notes"
             fallbackLabel="Hero image placeholder (replace with /public/me-1.jpg)"
             priority
@@ -123,7 +123,7 @@ export default function HomePage() {
         <section className="mx-auto grid w-full max-w-6xl gap-8 px-6 pb-20 md:grid-cols-2">
           {/* TODO: Replace /me-2.jpg with your product or materials image. */}
           <MarketingImage
-            src="/me-2.jpg"
+            src="/me-2.jpeg"
             alt="Lecture slides and notes spread across a desk"
             fallbackLabel="Materials image placeholder (replace with /public/me-2.jpg)"
             aspectClassName="aspect-[4/3]"
@@ -131,7 +131,7 @@ export default function HomePage() {
           />
           {/* TODO: Replace /me-3.jpg with your student outcome image. */}
           <MarketingImage
-            src="/me-3.jpg"
+            src="/me-3.jpeg"
             alt="Student preparing with quiz practice on laptop"
             fallbackLabel="Outcome image placeholder (replace with /public/me-3.jpg)"
             aspectClassName="aspect-[4/3]"
