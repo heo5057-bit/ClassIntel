@@ -1,11 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { signUpWithEmail } from "@/src/auth/actions";
 
 type CreateAccountFormProps = {
   nextPath: string;
 };
+
+function CreateAccountSubmitButton({ disabledByMismatch }: { disabledByMismatch: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      disabled={pending || disabledByMismatch}
+      className="w-full rounded-lg border border-slate-600 px-4 py-2 font-semibold text-white hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {pending ? "Creating account..." : "Create account"}
+    </button>
+  );
+}
 
 export function CreateAccountForm({ nextPath }: CreateAccountFormProps) {
   const [password, setPassword] = useState("");
@@ -80,12 +94,11 @@ export function CreateAccountForm({ nextPath }: CreateAccountFormProps) {
           {submitError || "Passwords do not match"}
         </p>
       ) : null}
-      <button
-        disabled={password.length > 0 && confirmPassword.length > 0 && !passwordsMatch}
-        className="w-full rounded-lg border border-slate-600 px-4 py-2 font-semibold text-white hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        Create account
-      </button>
+      <CreateAccountSubmitButton
+        disabledByMismatch={
+          password.length > 0 && confirmPassword.length > 0 && !passwordsMatch
+        }
+      />
     </form>
   );
 }

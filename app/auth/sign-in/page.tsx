@@ -26,6 +26,17 @@ const noticeMessageByCode: Record<string, string> = {
   check_email: "Check your email to confirm your account, then sign in.",
 };
 
+function mapSignupErrorMessage(raw: string): string {
+  const normalized = raw.trim();
+  const lower = normalized.toLowerCase();
+
+  if (lower.includes("email rate limit exceeded")) {
+    return "Too many signup attempts were made in a short time. Please wait a bit and try again.";
+  }
+
+  return normalized;
+}
+
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const supabase = await createSupabaseServerClient();
   const {
@@ -44,9 +55,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
     try {
       const decoded = decodeURIComponent(params.signupError).trim();
-      return decoded || null;
+      return decoded ? mapSignupErrorMessage(decoded) : null;
     } catch {
-      return params.signupError.trim() || null;
+      const raw = params.signupError.trim();
+      return raw ? mapSignupErrorMessage(raw) : null;
     }
   })();
 
