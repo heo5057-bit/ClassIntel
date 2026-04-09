@@ -21,13 +21,13 @@ export default function ContactPage() {
         <section className="mt-10 grid gap-8 lg:grid-cols-2">
           <article className="rounded-2xl border border-white/10 bg-slate-900/75 p-6 shadow-xl shadow-slate-950/30">
             <h2 className="text-2xl font-semibold">Contact Details</h2>
-            <p className="mt-4 text-slate-300">Email: hello@classintel.com</p>
+            <p className="mt-4 text-slate-300">Email: Heo5057@psu.edu</p>
             <p className="mt-2 text-slate-300">Response time: typically within 24 hours</p>
             <p className="mt-2 text-slate-300">Location: United States (remote-first team)</p>
             <div className="mt-6 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4">
               <p className="text-sm text-cyan-100">
-                Already ready to use ClassIntel? Create your account and start a
-                course workspace now.
+                Ready to start studying smarter? Open your dashboard and begin
+                building your first course workspace.
               </p>
               <Link
                 href="/auth/sign-in"
@@ -68,7 +68,7 @@ export default function ContactPage() {
                 />
               </label>
               <a
-                href="mailto:hello@classintel.com?subject=ClassIntel%20Question"
+                href="mailto:Heo5057@psu.edu?subject=ClassIntel%20Question"
                 className="inline-flex rounded-lg bg-cyan-400 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
                 Send Email

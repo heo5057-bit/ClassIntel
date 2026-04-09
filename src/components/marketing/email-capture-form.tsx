@@ -9,23 +9,16 @@ export function EmailCaptureForm() {
         Live Product
       </p>
       <h3 className="mt-2 text-2xl font-semibold">
-        Start using Professor Mode in your real courses today.
+        Start using ClassIntel now.
       </h3>
       <p className="mt-2 text-sm leading-6 text-slate-300">
-        Create an account, add a course workspace, upload materials, and
-        generate study guides, practice quizzes, flashcards, and quick-review
-        summaries.
+        Create a course workspace, upload your materials, and generate targeted
+        study guides, quizzes, and flashcards.
       </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <Link
-          href="/auth/sign-in"
-          className="rounded-lg bg-cyan-400 px-4 py-2.5 text-center font-semibold text-slate-950 transition hover:bg-cyan-300"
-        >
-          Sign Up
-        </Link>
+      <div className="mt-5">
         <Link
           href="/dashboard"
-          className="rounded-lg border border-slate-600 px-4 py-2.5 text-center font-semibold text-white transition hover:border-cyan-300"
+          className="inline-flex rounded-lg bg-cyan-400 px-5 py-2.5 text-center font-semibold text-slate-950 transition hover:bg-cyan-300"
         >
           Open Dashboard
         </Link>
