@@ -82,7 +82,7 @@ export default function AboutPage() {
             {/* TODO: Replace this placeholder embed URL with your real 30-second pitch video link. */}
             <iframe
               title="ClassIntel 30-second pitch video"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              src="https://www.youtube.com/embed/m6eCi15yf8o"
               className="h-[320px] w-full bg-slate-950"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
