@@ -1,4 +1,9 @@
-import type { CourseMaterial } from "@prisma/client";
+type MaterialForScoring = {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  extractedText: string | null;
+};
 
 export type RankedTopic = {
   title: string;
@@ -159,7 +164,7 @@ function computeConfidence(score: number): number {
 }
 
 export function rankProfessorTopics(input: {
-  materials: CourseMaterial[];
+  materials: MaterialForScoring[];
 }): RankedTopic[] {
   const topicMap = new Map<string, TopicAccumulator>();
 
