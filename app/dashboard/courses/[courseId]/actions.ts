@@ -9,6 +9,35 @@ import {
 } from "@/src/domain/workspace/workspace-service";
 import { createSupabaseServerClient } from "@/src/supabase/server";
 
+const MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = [
+  ".pdf",
+  ".txt",
+  ".md",
+  ".csv",
+  ".json",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".doc",
+  ".docx",
+];
+
+function buildCoursePagePath(courseId: string, message?: { type: "error" | "success"; text: string }) {
+  if (!message) {
+    return `/dashboard/courses/${courseId}`;
+  }
+
+  const key = message.type === "error" ? "uploadError" : "uploadSuccess";
+  return `/dashboard/courses/${courseId}?${key}=${encodeURIComponent(message.text)}`;
+}
+
+function isAllowedFileName(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return ALLOWED_EXTENSIONS.some((extension) => lower.endsWith(extension));
+}
+
 async function requireUser() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -28,16 +57,67 @@ export async function uploadMaterialAction(formData: FormData) {
   const fileValue = formData.get("material");
 
   if (!courseId || !(fileValue instanceof File) || fileValue.size === 0) {
-    return;
+    redirect(
+      buildCoursePagePath(courseId, {
+        type: "error",
+        text: "Please choose a file before uploading.",
+      }),
+    );
   }
 
-  await uploadMaterialToWorkspace({
-    userId: user.id,
-    courseId,
-    file: fileValue,
-  });
+  if (!isAllowedFileName(fileValue.name)) {
+    redirect(
+      buildCoursePagePath(courseId, {
+        type: "error",
+        text: "Unsupported file type. Please upload PDF, document, text, or image files.",
+      }),
+    );
+  }
 
-  revalidatePath(`/dashboard/courses/${courseId}`);
+  if (fileValue.size > MAX_UPLOAD_SIZE_BYTES) {
+    redirect(
+      buildCoursePagePath(courseId, {
+        type: "error",
+        text: "File is too large. Please upload files up to 20 MB.",
+      }),
+    );
+  }
+
+  try {
+    await uploadMaterialToWorkspace({
+      userId: user.id,
+      courseId,
+      file: fileValue,
+    });
+
+    revalidatePath(`/dashboard/courses/${courseId}`);
+    redirect(
+      buildCoursePagePath(courseId, {
+        type: "success",
+        text: `Uploaded ${fileValue.name} successfully.`,
+      }),
+    );
+  } catch (error) {
+    console.error("Upload failed", {
+      courseId,
+      userId: user.id,
+      fileName: fileValue.name,
+      fileSize: fileValue.size,
+      fileType: fileValue.type,
+      error,
+    });
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Upload failed. Please try again.";
+
+    redirect(
+      buildCoursePagePath(courseId, {
+        type: "error",
+        text: message,
+      }),
+    );
+  }
 }
 
 export async function deleteMaterialAction(formData: FormData) {

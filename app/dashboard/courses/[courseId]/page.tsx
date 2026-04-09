@@ -13,6 +13,10 @@ export const dynamic = "force-dynamic";
 
 type WorkspacePageProps = {
   params: Promise<{ courseId: string }>;
+  searchParams?: Promise<{
+    uploadError?: string;
+    uploadSuccess?: string;
+  }>;
 };
 
 function statusPill(status: string) {
@@ -27,9 +31,26 @@ function statusPill(status: string) {
   return "border-amber-500/40 bg-amber-500/10 text-amber-200";
 }
 
-export default async function CourseWorkspacePage({ params }: WorkspacePageProps) {
+function decodeMessage(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const decoded = decodeURIComponent(value).trim();
+    return decoded || null;
+  } catch {
+    return value.trim() || null;
+  }
+}
+
+export default async function CourseWorkspacePage({
+  params,
+  searchParams,
+}: WorkspacePageProps) {
   const user = await requireAuthenticatedUser();
   const { courseId } = await params;
+  const query = await searchParams;
 
   const workspace = await getWorkspaceOverview({
     userId: user.id,
@@ -41,9 +62,21 @@ export default async function CourseWorkspacePage({ params }: WorkspacePageProps
   }
 
   const readyForAssets = workspace.status.readyMaterials > 0;
+  const uploadError = decodeMessage(query?.uploadError);
+  const uploadSuccess = decodeMessage(query?.uploadSuccess);
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
+      {uploadError ? (
+        <div className="mb-4 rounded-lg border border-rose-600/40 bg-rose-950/40 px-4 py-3 text-sm text-rose-200">
+          {uploadError}
+        </div>
+      ) : null}
+      {uploadSuccess ? (
+        <div className="mb-4 rounded-lg border border-emerald-600/40 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-200">
+          {uploadSuccess}
+        </div>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 lg:col-span-1">
           <h2 className="text-lg font-semibold">Upload Materials</h2>
