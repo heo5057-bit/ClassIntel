@@ -75,8 +75,9 @@ export default function HomePage() {
             src="/me-1.png"
             alt="Students collaborating with laptops and notes"
             fallbackLabel="Hero image placeholder (replace with /public/me-1.jpg)"
+            aspectClassName="aspect-[4/5]"
             priority
-            imageClassName="object-cover object-top"
+            imageClassName="object-cover object-[50%_28%]"
           />
         </section>
 

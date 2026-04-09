@@ -96,8 +96,8 @@ export default function AboutPage() {
             src="/me-1.png"
             alt="ClassIntel team placeholder"
             fallbackLabel="Team photo placeholder (replace with /me-1.png)"
-            aspectClassName="aspect-[16/9]"
-            imageClassName="object-cover object-top"
+            aspectClassName="aspect-[4/5]"
+            imageClassName="object-cover object-[50%_28%]"
             sizes="100vw"
           />
         </section>
