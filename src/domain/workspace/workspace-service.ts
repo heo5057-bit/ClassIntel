@@ -299,6 +299,11 @@ export async function runWorkspaceAnalysis(input: {
 
   const assets = generateStudyAssetsFromTopics({
     rankedTopics: providerOutput.topics,
+    materials: materials.map((material) => ({
+      fileName: material.fileName,
+      mimeType: material.mimeType,
+      extractedText: material.extractedText,
+    })),
   });
 
   await Promise.all([

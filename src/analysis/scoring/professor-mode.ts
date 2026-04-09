@@ -126,6 +126,26 @@ function extractKeyPhrases(sentence: string): string[] {
   return Array.from(new Set(tokens)).slice(0, 6);
 }
 
+function buildMetadataSentences(material: MaterialForScoring): string[] {
+  const cleanName = material.fileName
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[_\-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const signals = fileSignalFlags(material.fileName, material.mimeType);
+  const sourceType = signals.looksLikeExam
+    ? "assessment material"
+    : signals.looksLikeReview
+      ? "review material"
+      : "lecture material";
+
+  const summary = `${cleanName} appears in uploaded ${sourceType} and contributes to exam-focused prioritization.`;
+  const emphasis = `${cleanName} should be reviewed with key terms, definitions, and applications from this course source.`;
+
+  return [summary, emphasis];
+}
+
 function fileSignalFlags(fileName: string, mimeType: string): {
   looksLikeExam: boolean;
   looksLikeReview: boolean;
@@ -200,12 +220,9 @@ export function rankProfessorTopics(input: {
 
   for (const material of input.materials) {
     const text = material.extractedText?.trim();
-
-    if (!text) {
-      continue;
-    }
-
-    const sentenceChunks = sentenceSplit(text).slice(0, 220);
+    const sentenceChunks = text
+      ? sentenceSplit(text).slice(0, 220)
+      : buildMetadataSentences(material);
     const fileSignals = fileSignalFlags(material.fileName, material.mimeType);
 
     for (const sentence of sentenceChunks) {
