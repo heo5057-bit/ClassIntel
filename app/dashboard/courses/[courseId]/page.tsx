@@ -128,7 +128,28 @@ export default async function CourseWorkspacePage({
             Add lecture slides, notes, study guides, homework, and past exams.
             Files are stored per course workspace.
           </p>
-          <UploadMaterialForm courseId={courseId} action={uploadMaterialAction} />
+          <p className="mt-2 text-xs text-slate-400">
+            {workspace.plan.isPremium
+              ? "Premium: unlimited uploads, larger file size, and priority processing."
+              : `Free plan: up to ${workspace.plan.maxUploadsPerCourse ?? "unlimited"} uploads per course.`}
+          </p>
+          {!workspace.plan.isPremium ? (
+            <Link
+              href="/premium"
+              className="mt-3 inline-flex rounded-md border border-cyan-300/60 bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-cyan-200 hover:bg-cyan-300/20"
+            >
+              Upgrade to Premium
+            </Link>
+          ) : (
+            <span className="mt-3 inline-flex rounded-md border border-emerald-400/50 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-200">
+              Premium Active
+            </span>
+          )}
+          <UploadMaterialForm
+            courseId={courseId}
+            maxUploadSizeBytes={workspace.plan.maxUploadSizeBytes}
+            action={uploadMaterialAction}
+          />
 
           <GenerateAssetsForm
             courseId={courseId}
@@ -244,7 +265,9 @@ export default async function CourseWorkspacePage({
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
-              {workspace.rankedTopics.slice(0, 8).map((topic) => (
+              {workspace.rankedTopics
+                .slice(0, workspace.plan.maxLikelyFocusTopics)
+                .map((topic) => (
                 <li
                   key={topic.title}
                   className="rounded-lg border border-slate-700 bg-slate-950/50 p-4"
@@ -265,6 +288,15 @@ export default async function CourseWorkspacePage({
               ))}
             </ul>
           )}
+          {!workspace.plan.isPremium &&
+          workspace.rankedTopics.length > workspace.plan.maxLikelyFocusTopics ? (
+            <p className="mt-3 text-xs text-slate-400">
+              Showing top {workspace.plan.maxLikelyFocusTopics} on Free plan.
+              <Link href="/premium" className="ml-1 text-cyan-300 hover:text-cyan-200">
+                Upgrade to unlock detailed ranking.
+              </Link>
+            </p>
+          ) : null}
         </section>
 
         <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6">

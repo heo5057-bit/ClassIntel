@@ -1,5 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  createBillingPortalSession,
+  createPremiumCheckoutSession,
+} from "@/src/billing/actions";
+import { getCurrentUserAndPlan } from "@/src/domain/billing/current-user";
 import { signOut } from "@/src/auth/actions";
 
 type WorkspaceShellProps = {
@@ -16,11 +21,14 @@ const navLinks = [
   { label: "Quick Review", suffix: "/quick-review" },
 ];
 
-export function WorkspaceShell({
+export async function WorkspaceShell({
   courseId,
   courseName,
   children,
 }: WorkspaceShellProps) {
+  const { plan } = await getCurrentUserAndPlan();
+  const isPremium = Boolean(plan?.isPremium);
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -31,6 +39,17 @@ export function WorkspaceShell({
                 Professor Mode Workspace
               </p>
               <h1 className="mt-2 text-2xl font-bold">{courseName}</h1>
+              <p className="mt-2">
+                {isPremium ? (
+                  <span className="inline-flex rounded-full border border-emerald-400/50 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-200">
+                    Premium
+                  </span>
+                ) : (
+                  <span className="inline-flex rounded-full border border-slate-600 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-slate-300">
+                    Free
+                  </span>
+                )}
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Link
@@ -39,6 +58,19 @@ export function WorkspaceShell({
               >
                 Dashboard
               </Link>
+              {isPremium ? (
+                <form action={createBillingPortalSession}>
+                  <button className="rounded-md border border-cyan-300/60 bg-cyan-400/10 px-3 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20">
+                    Manage Subscription
+                  </button>
+                </form>
+              ) : (
+                <form action={createPremiumCheckoutSession}>
+                  <button className="rounded-md border border-cyan-300/60 bg-cyan-400/10 px-3 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20">
+                    Upgrade
+                  </button>
+                </form>
+              )}
               <form action={signOut}>
                 <button className="rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-100 hover:border-slate-500">
                   Sign Out

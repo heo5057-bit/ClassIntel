@@ -98,16 +98,22 @@ function detectSourceCoverage(materials: MaterialForAssetGeneration[]) {
 export function generateStudyAssetsFromTopics(input: {
   rankedTopics: RankedTopic[];
   materials: MaterialForAssetGeneration[];
+  plan: "free" | "premium";
 }): GeneratedAssets {
   const { materials } = input;
-  const topics = input.rankedTopics.slice(0, 10);
+  const topics = input.rankedTopics.slice(
+    0,
+    input.plan === "premium" ? 14 : 6,
+  );
   const sourceCoverage = detectSourceCoverage(materials);
   const definitions = extractDefinitions(materials);
   const formulas = extractFormulas(materials);
   const sourceFiles = materials.slice(0, 4).map((material) => material.fileName);
 
   const studyGuide: StudyGuideSection[] = ensureAtLeast<StudyGuideSection>(
-    topics.slice(0, 8).map((topic, index) => ({
+    topics
+      .slice(0, input.plan === "premium" ? 12 : 6)
+      .map((topic, index) => ({
       topic: topic.title,
       importance: (index < 4 ? "High" : "Medium") as "High" | "Medium",
       confidence: topic.confidence,
@@ -135,7 +141,7 @@ export function generateStudyAssetsFromTopics(input: {
   );
 
   const quiz: QuizQuestion[] = ensureAtLeast(
-    topics.slice(0, 6).flatMap((topic, index) => {
+    topics.slice(0, input.plan === "premium" ? 10 : 5).flatMap((topic, index) => {
       const phrase = topic.keyPhrases[0] ?? "core concept";
       const mcq: QuizQuestion = {
         prompt: `Which statement best reflects the role of ${topic.title} in this course?`,
@@ -160,7 +166,13 @@ export function generateStudyAssetsFromTopics(input: {
         topic: topic.title,
       };
 
-      return index < 4 ? [mcq, shortAnswer] : [mcq];
+      return input.plan === "premium"
+        ? index < 8
+          ? [mcq, shortAnswer]
+          : [mcq]
+        : index < 3
+          ? [mcq, shortAnswer]
+          : [mcq];
     }),
     [
       {
@@ -177,7 +189,7 @@ export function generateStudyAssetsFromTopics(input: {
   );
 
   const flashcards: Flashcard[] = ensureAtLeast(
-    topics.slice(0, 12).map((topic) => ({
+    topics.slice(0, input.plan === "premium" ? 24 : 10).map((topic) => ({
       topic: topic.title,
       front: `Define or explain: ${topic.title}`,
       back: `Key terms: ${ensureAtLeast(topic.keyPhrases, [
@@ -198,7 +210,7 @@ export function generateStudyAssetsFromTopics(input: {
   );
 
   const quickReview = ensureAtLeast(
-    topics.slice(0, 6).map((topic) => ({
+    topics.slice(0, input.plan === "premium" ? 10 : 5).map((topic) => ({
       topic: topic.title,
       confidence: topic.confidence,
       reasons: ensureAtLeast(topic.reasons, ["Pattern-based emphasis detected"]),

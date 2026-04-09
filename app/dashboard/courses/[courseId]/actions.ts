@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getUserPlanLimits } from "@/src/domain/billing/subscription-service";
 import {
   deleteMaterialFromWorkspace,
   runWorkspaceAnalysis,
@@ -9,7 +10,6 @@ import {
 } from "@/src/domain/workspace/workspace-service";
 import { createSupabaseServerClient } from "@/src/supabase/server";
 
-const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [
   ".pdf",
   ".txt",
@@ -53,6 +53,7 @@ async function requireUser() {
 
 export async function uploadMaterialAction(formData: FormData) {
   const user = await requireUser();
+  const plan = await getUserPlanLimits(user.id);
   const courseId = String(formData.get("courseId") ?? "").trim();
   const fileValue = formData.get("material");
   console.info("uploadMaterialAction:start", {
@@ -82,11 +83,12 @@ export async function uploadMaterialAction(formData: FormData) {
     );
   }
 
-  if (fileValue.size > MAX_UPLOAD_SIZE_BYTES) {
+  if (fileValue.size > plan.maxUploadSizeBytes) {
+    const maxMb = Math.floor(plan.maxUploadSizeBytes / (1024 * 1024));
     redirect(
       buildCoursePagePath(courseId, {
         type: "error",
-        text: "This file is too large to upload. Please upload a PDF under 10 MB.",
+        text: `This file is too large to upload. Please upload a file under ${maxMb} MB.`,
       }),
     );
   }

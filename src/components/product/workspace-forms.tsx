@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 
-const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
-
 function UploadSubmitButton() {
   const { pending } = useFormStatus();
 
@@ -33,11 +31,17 @@ function GenerateSubmitButton() {
 
 type UploadMaterialFormProps = {
   courseId: string;
+  maxUploadSizeBytes: number;
   action: (formData: FormData) => void | Promise<void>;
 };
 
-export function UploadMaterialForm({ courseId, action }: UploadMaterialFormProps) {
+export function UploadMaterialForm({
+  courseId,
+  maxUploadSizeBytes,
+  action,
+}: UploadMaterialFormProps) {
   const [clientError, setClientError] = useState("");
+  const maxUploadLabelMb = Math.floor(maxUploadSizeBytes / (1024 * 1024));
 
   return (
     <form
@@ -55,10 +59,10 @@ export function UploadMaterialForm({ courseId, action }: UploadMaterialFormProps
           return;
         }
 
-        if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        if (file.size > maxUploadSizeBytes) {
           event.preventDefault();
           setClientError(
-            "This file is too large to upload. Please upload a PDF under 10 MB.",
+            `This file is too large to upload. Please upload a file under ${maxUploadLabelMb} MB.`,
           );
           return;
         }
@@ -77,7 +81,7 @@ export function UploadMaterialForm({ courseId, action }: UploadMaterialFormProps
           className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
         />
       </label>
-      <p className="text-xs text-slate-400">Max file size: 10 MB.</p>
+      <p className="text-xs text-slate-400">Max file size: {maxUploadLabelMb} MB.</p>
       {clientError ? <p className="text-sm text-rose-300">{clientError}</p> : null}
       <UploadSubmitButton />
     </form>

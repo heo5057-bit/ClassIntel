@@ -30,4 +30,10 @@ export const env = Object.freeze({
   get STRIPE_WEBHOOK_SECRET() {
     return process.env.STRIPE_WEBHOOK_SECRET ?? "";
   },
+  get STRIPE_PRICE_ID_PREMIUM_MONTHLY() {
+    return process.env.STRIPE_PRICE_ID_PREMIUM_MONTHLY ?? "";
+  },
+  get NEXT_PUBLIC_APP_URL() {
+    return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  },
 });

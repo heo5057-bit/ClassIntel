@@ -33,6 +33,7 @@ export default async function FlashcardsPage({ params }: FlashcardsPageProps) {
   }
 
   const cards = asset ? parseFlashcardsPayload(asset.payload) : [];
+  const visibleCards = cards.slice(0, workspace.plan.isPremium ? cards.length : 10);
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
@@ -67,7 +68,7 @@ export default async function FlashcardsPage({ params }: FlashcardsPageProps) {
           </div>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {cards.map((card, index) => (
+            {visibleCards.map((card, index) => (
               <article
                 key={`${card.topic}-${index}`}
                 className="rounded-xl border border-slate-700 bg-slate-950/60 p-4"
@@ -91,6 +92,14 @@ export default async function FlashcardsPage({ params }: FlashcardsPageProps) {
             ))}
           </div>
         )}
+        {!workspace.plan.isPremium && cards.length > 10 ? (
+          <p className="mt-4 text-sm text-slate-400">
+            Free plan includes up to 10 flashcards.
+            <Link href="/premium" className="ml-1 text-cyan-300 hover:text-cyan-200">
+              Upgrade to unlock advanced flashcards.
+            </Link>
+          </p>
+        ) : null}
       </section>
     </WorkspaceShell>
   );

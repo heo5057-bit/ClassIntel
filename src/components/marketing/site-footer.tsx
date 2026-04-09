@@ -16,6 +16,9 @@ export function SiteFooter() {
           <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">Company</h3>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             <li>
+              <Link href="/premium" className="hover:text-cyan-300">Premium</Link>
+            </li>
+            <li>
               <Link href="/about" className="hover:text-cyan-300">About</Link>
             </li>
             <li>

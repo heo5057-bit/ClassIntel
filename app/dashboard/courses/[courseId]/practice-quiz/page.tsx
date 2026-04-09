@@ -33,6 +33,10 @@ export default async function PracticeQuizPage({ params }: PracticeQuizPageProps
   }
 
   const questions = asset ? parseQuizPayload(asset.payload) : [];
+  const visibleQuestions = questions.slice(
+    0,
+    workspace.plan.isPremium ? questions.length : 8,
+  );
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
@@ -67,7 +71,7 @@ export default async function PracticeQuizPage({ params }: PracticeQuizPageProps
           </div>
         ) : (
           <ol className="mt-6 space-y-4">
-            {questions.map((question, index) => (
+            {visibleQuestions.map((question, index) => (
               <li
                 key={`${question.topic}-${index}`}
                 className="rounded-xl border border-slate-700 bg-slate-950/60 p-5"
@@ -100,6 +104,14 @@ export default async function PracticeQuizPage({ params }: PracticeQuizPageProps
             ))}
           </ol>
         )}
+        {!workspace.plan.isPremium && questions.length > 8 ? (
+          <p className="mt-4 text-sm text-slate-400">
+            Free plan includes up to 8 quiz questions.
+            <Link href="/premium" className="ml-1 text-cyan-300 hover:text-cyan-200">
+              Upgrade to Premium for a full-length quiz.
+            </Link>
+          </p>
+        ) : null}
       </section>
     </WorkspaceShell>
   );

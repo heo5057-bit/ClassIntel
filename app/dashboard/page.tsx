@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  createBillingPortalSession,
+  createPremiumCheckoutSession,
+} from "@/src/billing/actions";
 import { signOut } from "@/src/auth/actions";
+import { getUserPlanLimits } from "@/src/domain/billing/subscription-service";
 import { getUserCourses } from "@/src/domain/course/course-service";
 import { upsertUserProfile } from "@/src/persistence/user-profile-repository";
 import { createSupabaseServerClient } from "@/src/supabase/server";
@@ -8,7 +13,29 @@ import { createCourseAction, deleteCourseAction } from "@/app/dashboard/actions"
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: Promise<{
+    billing?: string;
+  }>;
+};
+
+function billingNotice(code: string | undefined): string | null {
+  if (!code) {
+    return null;
+  }
+
+  if (code === "upgrade_success") {
+    return "Premium upgrade successful. Your account now has premium limits.";
+  }
+
+  if (code === "already_premium") {
+    return "Your subscription is already Premium.";
+  }
+
+  return null;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -25,10 +52,18 @@ export default async function DashboardPage() {
   });
 
   const courses = await getUserCourses(user.id);
+  const plan = await getUserPlanLimits(user.id);
+  const query = await searchParams;
+  const billingMessage = billingNotice(query?.billing);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="mx-auto w-full max-w-6xl px-6 py-12">
+        {billingMessage ? (
+          <p className="mb-4 rounded-lg border border-emerald-600/40 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-200">
+            {billingMessage}
+          </p>
+        ) : null}
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
@@ -41,6 +76,17 @@ export default async function DashboardPage() {
               Build course workspaces, upload materials, and generate
               Professor Mode study outputs.
             </p>
+            <p className="mt-2">
+              {plan.isPremium ? (
+                <span className="inline-flex rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-200">
+                  Premium Plan
+                </span>
+              ) : (
+                <span className="inline-flex rounded-full border border-slate-600 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-slate-300">
+                  Free Plan
+                </span>
+              )}
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -50,6 +96,19 @@ export default async function DashboardPage() {
             >
               Product Home
             </Link>
+            {plan.isPremium ? (
+              <form action={createBillingPortalSession}>
+                <button className="rounded-lg border border-cyan-300/50 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-300/10">
+                  Manage Subscription
+                </button>
+              </form>
+            ) : (
+              <form action={createPremiumCheckoutSession}>
+                <button className="rounded-lg border border-cyan-300/70 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-300/20">
+                  Upgrade
+                </button>
+              </form>
+            )}
             <form action={signOut}>
               <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500">
                 Sign out

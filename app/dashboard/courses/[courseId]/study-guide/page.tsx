@@ -33,6 +33,10 @@ export default async function StudyGuidePage({ params }: StudyGuidePageProps) {
   }
 
   const sections = asset ? parseStudyGuidePayload(asset.payload) : [];
+  const visibleSections = sections.slice(
+    0,
+    workspace.plan.isPremium ? sections.length : 6,
+  );
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
@@ -68,7 +72,7 @@ export default async function StudyGuidePage({ params }: StudyGuidePageProps) {
           </div>
         ) : (
           <ul className="mt-6 space-y-4">
-            {sections.map((section) => (
+            {visibleSections.map((section) => (
               <li
                 key={section.topic}
                 className="rounded-xl border border-slate-700 bg-slate-950/60 p-5"
@@ -100,6 +104,14 @@ export default async function StudyGuidePage({ params }: StudyGuidePageProps) {
             ))}
           </ul>
         )}
+        {!workspace.plan.isPremium && sections.length > 6 ? (
+          <p className="mt-4 text-sm text-slate-400">
+            Free plan shows 6 study-guide topics.
+            <Link href="/premium" className="ml-1 text-cyan-300 hover:text-cyan-200">
+              Upgrade to unlock full guide depth.
+            </Link>
+          </p>
+        ) : null}
       </section>
     </WorkspaceShell>
   );

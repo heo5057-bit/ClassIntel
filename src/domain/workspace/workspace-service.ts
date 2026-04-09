@@ -6,6 +6,7 @@ import type {
 } from "@prisma/client";
 import { rankProfessorTopics } from "@/src/analysis/scoring/professor-mode";
 import { runProfessorModeProvider } from "@/src/ai/provider/mock-provider";
+import { getUserPlanLimits } from "@/src/domain/billing/subscription-service";
 import { getCourseForUser } from "@/src/domain/course/course-service";
 import type {
   Flashcard,
@@ -52,6 +53,13 @@ export type WorkspaceOverview = {
   }>;
   assets: StudyAsset[];
   latestAnalysisAt: Date | null;
+  plan: {
+    name: "free" | "premium";
+    isPremium: boolean;
+    maxLikelyFocusTopics: number;
+    maxUploadsPerCourse: number | null;
+    maxUploadSizeBytes: number;
+  };
 };
 
 function getWorkspaceStatus(materials: CourseMaterial[]): WorkspaceStatus {
@@ -131,6 +139,7 @@ export async function getWorkspaceOverview(input: {
   let topics: Awaited<ReturnType<typeof listRankedTopics>> = [];
   let assets: StudyAsset[] = [];
   let latestAnalysis: Awaited<ReturnType<typeof getLatestAnalysisRun>> = null;
+  const plan = await getUserPlanLimits(input.userId);
 
   try {
     [materials, topics, assets, latestAnalysis] = await Promise.all([
@@ -168,6 +177,13 @@ export async function getWorkspaceOverview(input: {
     })),
     assets,
     latestAnalysisAt: latestAnalysis?.createdAt ?? null,
+    plan: {
+      name: plan.plan,
+      isPremium: plan.isPremium,
+      maxLikelyFocusTopics: plan.maxLikelyFocusTopics,
+      maxUploadsPerCourse: plan.maxUploadsPerCourse,
+      maxUploadSizeBytes: plan.maxUploadSizeBytes,
+    },
   };
 }
 
@@ -191,6 +207,28 @@ export async function uploadMaterialToWorkspace(input: {
 
   if (!course) {
     throw new Error("Course not found.");
+  }
+
+  const plan = await getUserPlanLimits(input.userId);
+  const existingMaterials = await listMaterialsForCourse({
+    userId: input.userId,
+    courseId: input.courseId,
+  });
+
+  if (
+    plan.maxUploadsPerCourse !== null &&
+    existingMaterials.length >= plan.maxUploadsPerCourse
+  ) {
+    throw new Error(
+      `Free plan upload limit reached (${plan.maxUploadsPerCourse} files). Upgrade to Premium for unlimited uploads.`,
+    );
+  }
+
+  if (input.file.size > plan.maxUploadSizeBytes) {
+    const maxMb = Math.floor(plan.maxUploadSizeBytes / (1024 * 1024));
+    throw new Error(
+      `This file is too large for your plan. Please upload a file under ${maxMb} MB.`,
+    );
   }
 
   const material = await createMaterial({
@@ -262,6 +300,7 @@ export async function runWorkspaceAnalysis(input: {
   userId: string;
   courseId: string;
 }): Promise<void> {
+  const plan = await getUserPlanLimits(input.userId);
   const materials = await listMaterialsForCourse({
     userId: input.userId,
     courseId: input.courseId,
@@ -304,6 +343,7 @@ export async function runWorkspaceAnalysis(input: {
       mimeType: material.mimeType,
       extractedText: material.extractedText,
     })),
+    plan: plan.plan,
   });
 
   await Promise.all([

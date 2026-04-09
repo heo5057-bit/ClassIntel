@@ -33,6 +33,7 @@ export default async function QuickReviewPage({ params }: QuickReviewPageProps) 
   }
 
   const items = asset ? parseQuickReviewPayload(asset.payload) : [];
+  const visibleItems = items.slice(0, workspace.plan.isPremium ? items.length : 5);
 
   return (
     <WorkspaceShell courseId={courseId} courseName={workspace.course.name}>
@@ -68,7 +69,7 @@ export default async function QuickReviewPage({ params }: QuickReviewPageProps) 
           </div>
         ) : (
           <ul className="mt-6 space-y-3">
-            {items.map((item) => (
+            {visibleItems.map((item) => (
               <li
                 key={item.topic}
                 className="rounded-xl border border-slate-700 bg-slate-950/60 p-5"
@@ -92,6 +93,14 @@ export default async function QuickReviewPage({ params }: QuickReviewPageProps) 
             ))}
           </ul>
         )}
+        {!workspace.plan.isPremium && items.length > 5 ? (
+          <p className="mt-4 text-sm text-slate-400">
+            Free plan shows top 5 quick-review focus areas.
+            <Link href="/premium" className="ml-1 text-cyan-300 hover:text-cyan-200">
+              Upgrade for full ranking depth.
+            </Link>
+          </p>
+        ) : null}
       </section>
     </WorkspaceShell>
   );
