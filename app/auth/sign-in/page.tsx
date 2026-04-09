@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signInWithEmail, signUpWithEmail } from "@/src/auth/actions";
+import { signInWithEmail } from "@/src/auth/actions";
+import { CreateAccountForm } from "@/src/components/auth/create-account-form";
 import { createSupabaseServerClient } from "@/src/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ const errorMessageByCode: Record<string, string> = {
   missing_credentials: "Please provide an email and password.",
   invalid_credentials: "Invalid email or password.",
   signup_failed: "Sign up failed. Try a different email.",
+  password_mismatch: "Passwords do not match.",
 };
 
 const noticeMessageByCode: Record<string, string> = {
@@ -106,40 +108,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
             <div className="my-6 h-px bg-slate-800" />
 
-            <form action={signUpWithEmail} className="space-y-4">
-              <h2 className="text-lg font-semibold">Create account</h2>
-              <input type="hidden" name="redirectTo" value={nextPath} />
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-300">Full name</span>
-                <input
-                  type="text"
-                  name="fullName"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-300">Email</span>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-300">Password</span>
-                <input
-                  type="password"
-                  name="password"
-                  minLength={6}
-                  required
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
-                />
-              </label>
-              <button className="w-full rounded-lg border border-slate-600 px-4 py-2 font-semibold text-white hover:border-slate-500">
-                Create account
-              </button>
-            </form>
+            <CreateAccountForm nextPath={nextPath} />
           </div>
         </div>
       </section>

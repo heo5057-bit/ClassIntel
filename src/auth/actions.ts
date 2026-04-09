@@ -35,11 +35,16 @@ export async function signInWithEmail(formData: FormData) {
 export async function signUpWithEmail(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
+  const confirmPassword = String(formData.get("confirmPassword") ?? "").trim();
   const fullName = String(formData.get("fullName") ?? "").trim();
   const redirectTo = getSafeRedirectPath(formData.get("redirectTo"));
 
   if (!email || !password) {
     redirect("/auth/sign-in?error=missing_credentials");
+  }
+
+  if (confirmPassword && password !== confirmPassword) {
+    redirect("/auth/sign-in?error=password_mismatch");
   }
 
   const supabase = await createSupabaseServerClient();
