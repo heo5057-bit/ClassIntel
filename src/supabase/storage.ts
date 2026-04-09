@@ -7,9 +7,24 @@ export async function uploadCourseMaterialToStorage(input: {
   materialId: string;
   file: File;
 }): Promise<{ path: string | null; errorMessage: string | null }> {
+  console.info("uploadCourseMaterialToStorage:start", {
+    userId: input.userId,
+    courseId: input.courseId,
+    materialId: input.materialId,
+    fileName: input.file.name,
+    fileSize: input.file.size,
+    fileType: input.file.type,
+    bucket: env.SUPABASE_STORAGE_BUCKET,
+  });
+
   const admin = createSupabaseAdminClient();
 
   if (!admin) {
+    console.error("uploadCourseMaterialToStorage:no_admin_client", {
+      userId: input.userId,
+      courseId: input.courseId,
+      materialId: input.materialId,
+    });
     return {
       path: null,
       errorMessage:
@@ -29,6 +44,13 @@ export async function uploadCourseMaterialToStorage(input: {
     });
 
   if (error) {
+    console.error("uploadCourseMaterialToStorage:upload_failed", {
+      userId: input.userId,
+      courseId: input.courseId,
+      materialId: input.materialId,
+      path,
+      error: error.message,
+    });
     return {
       path: null,
       errorMessage: `Storage upload failed: ${error.message}`,

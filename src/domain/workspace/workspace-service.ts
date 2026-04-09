@@ -97,6 +97,14 @@ async function parseAndStoreMaterial(input: {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown extraction failure.";
+    console.error("parseAndStoreMaterial:extract_failed", {
+      materialId: input.materialId,
+      userId: input.userId,
+      fileName: input.file.name,
+      fileType: input.file.type,
+      fileSize: input.file.size,
+      error,
+    });
     await updateMaterialProcessingState({
       materialId: input.materialId,
       userId: input.userId,
@@ -119,12 +127,25 @@ export async function getWorkspaceOverview(input: {
     return null;
   }
 
-  const [materials, topics, assets, latestAnalysis] = await Promise.all([
-    listMaterialsForCourse({ userId: input.userId, courseId: input.courseId }),
-    listRankedTopics({ courseId: input.courseId }),
-    listStudyAssets({ userId: input.userId, courseId: input.courseId }),
-    getLatestAnalysisRun({ userId: input.userId, courseId: input.courseId }),
-  ]);
+  let materials: CourseMaterial[] = [];
+  let topics: Awaited<ReturnType<typeof listRankedTopics>> = [];
+  let assets: StudyAsset[] = [];
+  let latestAnalysis: Awaited<ReturnType<typeof getLatestAnalysisRun>> = null;
+
+  try {
+    [materials, topics, assets, latestAnalysis] = await Promise.all([
+      listMaterialsForCourse({ userId: input.userId, courseId: input.courseId }),
+      listRankedTopics({ courseId: input.courseId }),
+      listStudyAssets({ userId: input.userId, courseId: input.courseId }),
+      getLatestAnalysisRun({ userId: input.userId, courseId: input.courseId }),
+    ]);
+  } catch (error) {
+    console.error("getWorkspaceOverview:query_failed", {
+      courseId: input.courseId,
+      userId: input.userId,
+      error,
+    });
+  }
 
   return {
     course: {
@@ -155,6 +176,14 @@ export async function uploadMaterialToWorkspace(input: {
   courseId: string;
   file: File;
 }): Promise<void> {
+  console.info("uploadMaterialToWorkspace:start", {
+    userId: input.userId,
+    courseId: input.courseId,
+    fileName: input.file.name,
+    fileSize: input.file.size,
+    fileType: input.file.type,
+  });
+
   const course = await getCourseForUser({
     userId: input.userId,
     courseId: input.courseId,
@@ -171,6 +200,11 @@ export async function uploadMaterialToWorkspace(input: {
     mimeType: input.file.type || "application/octet-stream",
     sizeBytes: input.file.size,
   });
+  console.info("uploadMaterialToWorkspace:material_created", {
+    materialId: material.id,
+    courseId: input.courseId,
+    userId: input.userId,
+  });
 
   const storageUpload = await uploadCourseMaterialToStorage({
     userId: input.userId,
@@ -178,6 +212,19 @@ export async function uploadMaterialToWorkspace(input: {
     materialId: material.id,
     file: input.file,
   });
+  if (storageUpload.errorMessage) {
+    console.error("uploadMaterialToWorkspace:storage_failed", {
+      materialId: material.id,
+      courseId: input.courseId,
+      userId: input.userId,
+      error: storageUpload.errorMessage,
+    });
+  } else {
+    console.info("uploadMaterialToWorkspace:storage_success", {
+      materialId: material.id,
+      path: storageUpload.path,
+    });
+  }
 
   await updateMaterialProcessingState({
     materialId: material.id,
@@ -191,6 +238,11 @@ export async function uploadMaterialToWorkspace(input: {
     materialId: material.id,
     userId: input.userId,
     file: input.file,
+  });
+  console.info("uploadMaterialToWorkspace:parse_complete", {
+    materialId: material.id,
+    courseId: input.courseId,
+    userId: input.userId,
   });
 }
 

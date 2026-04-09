@@ -55,6 +55,14 @@ export async function uploadMaterialAction(formData: FormData) {
   const user = await requireUser();
   const courseId = String(formData.get("courseId") ?? "").trim();
   const fileValue = formData.get("material");
+  console.info("uploadMaterialAction:start", {
+    courseId,
+    userId: user.id,
+    hasFile: fileValue instanceof File,
+    fileName: fileValue instanceof File ? fileValue.name : null,
+    fileSize: fileValue instanceof File ? fileValue.size : null,
+    fileType: fileValue instanceof File ? fileValue.type : null,
+  });
 
   if (!courseId || !(fileValue instanceof File) || fileValue.size === 0) {
     redirect(
@@ -91,12 +99,11 @@ export async function uploadMaterialAction(formData: FormData) {
     });
 
     revalidatePath(`/dashboard/courses/${courseId}`);
-    redirect(
-      buildCoursePagePath(courseId, {
-        type: "success",
-        text: `Uploaded ${fileValue.name} successfully.`,
-      }),
-    );
+    console.info("uploadMaterialAction:success", {
+      courseId,
+      userId: user.id,
+      fileName: fileValue.name,
+    });
   } catch (error) {
     console.error("Upload failed", {
       courseId,
@@ -118,6 +125,13 @@ export async function uploadMaterialAction(formData: FormData) {
       }),
     );
   }
+
+  redirect(
+    buildCoursePagePath(courseId, {
+      type: "success",
+      text: `Uploaded ${fileValue.name} successfully.`,
+    }),
+  );
 }
 
 export async function deleteMaterialAction(formData: FormData) {

@@ -31,6 +31,26 @@ function statusPill(status: string) {
   return "border-amber-500/40 bg-amber-500/10 text-amber-200";
 }
 
+function safeText(value: string | null | undefined, fallback: string): string {
+  const normalized = String(value ?? "").trim();
+  return normalized || fallback;
+}
+
+function safeDateLabel(value: unknown): string {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toLocaleString();
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString();
+    }
+  }
+
+  return "Unknown upload time";
+}
+
 function decodeMessage(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -55,6 +75,12 @@ export default async function CourseWorkspacePage({
   const workspace = await getWorkspaceOverview({
     userId: user.id,
     courseId,
+  });
+  console.info("CourseWorkspacePage:load", {
+    courseId,
+    userId: user.id,
+    hasWorkspace: Boolean(workspace),
+    materialCount: workspace?.materials?.length ?? 0,
   });
 
   if (!workspace) {
@@ -131,44 +157,76 @@ export default async function CourseWorkspacePage({
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
-              {workspace.materials.map((material) => (
-                <li
-                  key={material.id}
-                  className="rounded-lg border border-slate-700 bg-slate-950/50 p-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium">{material.fileName}</p>
-                      <p className="mt-1 text-sm text-slate-400">
-                        {(material.sizeBytes / 1024).toFixed(1)} KB •{" "}
-                        {material.mimeType || "unknown type"}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Uploaded {material.createdAt.toLocaleString()}
-                      </p>
-                      {material.extractionNote ? (
-                        <p className="mt-1 text-xs text-slate-400">
-                          {material.extractionNote}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`rounded-md border px-2 py-1 text-xs font-semibold uppercase ${statusPill(material.status)}`}
-                      >
-                        {material.status}
-                      </span>
-                      <form action={deleteMaterialAction}>
-                        <input type="hidden" name="courseId" value={courseId} />
-                        <input type="hidden" name="materialId" value={material.id} />
-                        <button className="rounded-md border border-slate-600 px-2.5 py-1 text-xs text-slate-200 hover:border-rose-400 hover:text-rose-200">
-                          Delete
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                </li>
-              ))}
+              {workspace.materials.map((material) => {
+                try {
+                  const fileName = safeText(material.fileName, "Unnamed file");
+                  const mimeType = safeText(material.mimeType, "unknown type");
+                  const status = safeText(material.status, "ERROR");
+                  const sizeBytes = Number.isFinite(material.sizeBytes)
+                    ? material.sizeBytes
+                    : 0;
+                  const uploadTime = safeDateLabel(material.createdAt);
+
+                  return (
+                    <li
+                      key={material.id}
+                      className="rounded-lg border border-slate-700 bg-slate-950/50 p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{fileName}</p>
+                          <p className="mt-1 text-sm text-slate-400">
+                            {(sizeBytes / 1024).toFixed(1)} KB • {mimeType}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            Uploaded {uploadTime}
+                          </p>
+                          {material.extractionNote ? (
+                            <p className="mt-1 text-xs text-slate-400">
+                              {material.extractionNote}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-md border px-2 py-1 text-xs font-semibold uppercase ${statusPill(status)}`}
+                          >
+                            {status}
+                          </span>
+                          <form action={deleteMaterialAction}>
+                            <input type="hidden" name="courseId" value={courseId} />
+                            <input
+                              type="hidden"
+                              name="materialId"
+                              value={material.id}
+                            />
+                            <button className="rounded-md border border-slate-600 px-2.5 py-1 text-xs text-slate-200 hover:border-rose-400 hover:text-rose-200">
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                } catch (error) {
+                  console.error("CourseWorkspacePage:material_render_failed", {
+                    courseId,
+                    userId: user.id,
+                    materialId: material.id,
+                    error,
+                  });
+
+                  return (
+                    <li
+                      key={material.id}
+                      className="rounded-lg border border-rose-700/40 bg-rose-950/30 p-4 text-sm text-rose-200"
+                    >
+                      A file record could not be rendered. Please retry upload or
+                      delete this file.
+                    </li>
+                  );
+                }
+              })}
             </ul>
           )}
         </section>

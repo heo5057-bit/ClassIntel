@@ -44,8 +44,11 @@ function decodePdfHexString(hex: string): string {
 }
 
 async function extractTextFromPdf(file: File): Promise<string> {
+  const MAX_PARSE_BYTES = 2 * 1024 * 1024;
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const raw = new TextDecoder("latin1").decode(bytes);
+  const parseBytes =
+    bytes.byteLength > MAX_PARSE_BYTES ? bytes.slice(0, MAX_PARSE_BYTES) : bytes;
+  const raw = new TextDecoder("latin1").decode(parseBytes);
 
   const literalMatches = Array.from(raw.matchAll(/\(([^()]*)\)\s*Tj/g)).map(
     (match) => decodePdfStringLiteral(match[1]),
@@ -85,6 +88,13 @@ export async function extractMaterialText(input: {
   const { file } = input;
 
   if (file.type === "application/pdf") {
+    if (file.size > 10 * 1024 * 1024) {
+      return {
+        text: "",
+        note: "PDF extraction skipped for large file size in MVP mode. File metadata and upload are saved successfully.",
+      };
+    }
+
     const text = await extractTextFromPdf(file);
     if (text.length >= 20) {
       return {
