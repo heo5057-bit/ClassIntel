@@ -91,11 +91,11 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-12">
-          {/* TODO: Replace /me-1.jpg with your founder/team photo. */}
+          {/* TODO: Replace /me-1.png with your founder/team photo. */}
           <MarketingImage
-            src="/me-1.jpg"
+            src="/me-1.png"
             alt="ClassIntel team placeholder"
-            fallbackLabel="Team photo placeholder (replace with /public/me-1.jpg)"
+            fallbackLabel="Team photo placeholder (replace with /me-1.png)"
             aspectClassName="aspect-[16/7]"
             sizes="100vw"
           />
