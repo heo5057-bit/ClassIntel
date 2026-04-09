@@ -23,6 +23,8 @@ type TopicAccumulator = {
   examMentions: number;
   reviewMentions: number;
   emphasisMentions: number;
+  definitionMentions: number;
+  formulaMentions: number;
   phraseCounts: Map<string, number>;
 };
 
@@ -71,6 +73,19 @@ const EMPHASIS_PATTERNS = [
   /likely/gi,
   /exam/gi,
   /test/gi,
+];
+
+const DEFINITION_PATTERNS = [
+  /\bis defined as\b/gi,
+  /\bdefinition\b/gi,
+  /\brefers to\b/gi,
+  /\bmeans\b/gi,
+];
+
+const FORMULA_PATTERNS = [
+  /[A-Za-z]+\s*=\s*[A-Za-z0-9()+\-/*^.\s]+/g,
+  /\bformula\b/gi,
+  /\bequation\b/gi,
 ];
 
 function normalizeToken(token: string): string {
@@ -130,6 +145,13 @@ function countPatternMatches(text: string): number {
   }, 0);
 }
 
+function countAnyPatternMatches(text: string, patterns: RegExp[]): number {
+  return patterns.reduce((total, pattern) => {
+    const matches = text.match(pattern);
+    return total + (matches ? matches.length : 0);
+  }, 0);
+}
+
 function computeReasons(topic: TopicAccumulator): string[] {
   const reasons: string[] = [];
 
@@ -149,6 +171,14 @@ function computeReasons(topic: TopicAccumulator): string[] {
     reasons.push(
       "Contains emphasis cues like important, focus, or likely test coverage",
     );
+  }
+
+  if (topic.definitionMentions > 0) {
+    reasons.push("Linked to explicit definitions in the source material");
+  }
+
+  if (topic.formulaMentions > 0) {
+    reasons.push("Associated with equations or formulas present in your files");
   }
 
   if (reasons.length === 0) {
@@ -183,6 +213,11 @@ export function rankProfessorTopics(input: {
       const topicKey = topicName.toLowerCase();
       const keyPhrases = extractKeyPhrases(sentence);
       const emphasis = countPatternMatches(sentence);
+      const definitionSignals = countAnyPatternMatches(
+        sentence,
+        DEFINITION_PATTERNS,
+      );
+      const formulaSignals = countAnyPatternMatches(sentence, FORMULA_PATTERNS);
 
       let record = topicMap.get(topicKey);
 
@@ -194,6 +229,8 @@ export function rankProfessorTopics(input: {
           examMentions: 0,
           reviewMentions: 0,
           emphasisMentions: 0,
+          definitionMentions: 0,
+          formulaMentions: 0,
           phraseCounts: new Map<string, number>(),
         };
         topicMap.set(topicKey, record);
@@ -204,6 +241,8 @@ export function rankProfessorTopics(input: {
       record.examMentions += fileSignals.looksLikeExam ? 1 : 0;
       record.reviewMentions += fileSignals.looksLikeReview ? 1 : 0;
       record.emphasisMentions += emphasis;
+      record.definitionMentions += definitionSignals;
+      record.formulaMentions += formulaSignals;
 
       for (const phrase of keyPhrases) {
         record.phraseCounts.set(phrase, (record.phraseCounts.get(phrase) ?? 0) + 1);
@@ -220,7 +259,9 @@ export function rankProfessorTopics(input: {
           evidenceCount * 12 +
           topic.examMentions * 5 +
           topic.reviewMentions * 4 +
-          topic.emphasisMentions * 2
+          topic.emphasisMentions * 2 +
+          topic.definitionMentions * 2 +
+          topic.formulaMentions * 3
         ).toFixed(1),
       );
 

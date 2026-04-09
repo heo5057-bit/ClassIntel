@@ -110,6 +110,9 @@ export default async function CourseWorkspacePage({ params }: WorkspacePageProps
                         {(material.sizeBytes / 1024).toFixed(1)} KB •{" "}
                         {material.mimeType || "unknown type"}
                       </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Uploaded {material.createdAt.toLocaleString()}
+                      </p>
                       {material.extractionNote ? (
                         <p className="mt-1 text-xs text-slate-400">
                           {material.extractionNote}
