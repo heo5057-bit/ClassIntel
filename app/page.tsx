@@ -76,6 +76,7 @@ export default function HomePage() {
             alt="Students collaborating with laptops and notes"
             fallbackLabel="Hero image placeholder (replace with /public/me-1.jpg)"
             priority
+            imageClassName="object-cover object-top"
           />
         </section>
 
