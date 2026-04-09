@@ -42,16 +42,16 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="/#early-access"
+                href="/auth/sign-in"
                 className="rounded-xl bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Get Early Access Pricing
+                Sign Up
               </Link>
               <Link
-                href="/how-it-works"
+                href="/dashboard"
                 className="rounded-xl border border-slate-500 px-6 py-3 text-sm font-semibold text-white transition hover:border-cyan-300"
               >
-                See How It Works
+                Open Dashboard
               </Link>
             </div>
             <div className="mt-7 grid max-w-xl gap-3 sm:grid-cols-3">

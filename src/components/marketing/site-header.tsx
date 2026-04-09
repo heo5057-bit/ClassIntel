@@ -3,6 +3,7 @@ import { Logo } from "@/src/components/marketing/logo";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/about", label: "About" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/contact", label: "Contact" },
@@ -27,10 +28,10 @@ export function SiteHeader() {
         </nav>
 
         <Link
-          href="/#early-access"
+          href="/auth/sign-in"
           className="rounded-lg border border-cyan-300/60 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:border-cyan-200 hover:bg-cyan-400/20"
         >
-          Get Early Access
+          Get Started
         </Link>
       </div>
     </header>

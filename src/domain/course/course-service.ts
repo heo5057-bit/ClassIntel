@@ -1,6 +1,8 @@
 import type { Course } from "@prisma/client";
 import {
   createCourse as createCourseRecord,
+  deleteCourseByIdForUser,
+  getCourseByIdForUser,
   listCoursesForUser,
 } from "@/src/persistence/course-repository";
 
@@ -33,3 +35,22 @@ export async function getUserCourses(userId: string): Promise<Course[]> {
   return listCoursesForUser(userId);
 }
 
+export async function getCourseForUser(input: {
+  userId: string;
+  courseId: string;
+}): Promise<Course | null> {
+  return getCourseByIdForUser({
+    userId: input.userId,
+    courseId: input.courseId,
+  });
+}
+
+export async function deleteCourse(input: {
+  userId: string;
+  courseId: string;
+}): Promise<void> {
+  await deleteCourseByIdForUser({
+    userId: input.userId,
+    courseId: input.courseId,
+  });
+}

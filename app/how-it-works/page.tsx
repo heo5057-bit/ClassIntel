@@ -1,5 +1,6 @@
 import { InteractiveDemo } from "@/src/components/marketing/interactive-demo";
 import { MarketingShell } from "@/src/components/marketing/marketing-shell";
+import Link from "next/link";
 
 export default function HowItWorksPage() {
   return (
@@ -55,14 +56,20 @@ export default function HowItWorksPage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-3xl font-semibold">Interactive Demo</h2>
+          <h2 className="text-3xl font-semibold">Analysis Walkthrough</h2>
           <p className="mt-2 max-w-3xl text-slate-300">
-            Explore a realistic product mock that shows how rankings, guidance,
-            and quiz generation work together inside one study workflow.
+            Preview the workflow your workspace runs after uploads: topic
+            ranking, study-guide generation, and quiz construction.
           </p>
           <div className="mt-6">
             <InteractiveDemo />
           </div>
+          <Link
+            href="/dashboard"
+            className="mt-6 inline-flex rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300"
+          >
+            Open Dashboard
+          </Link>
         </section>
       </main>
     </MarketingShell>

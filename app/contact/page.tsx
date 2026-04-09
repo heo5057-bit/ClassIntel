@@ -13,8 +13,8 @@ export default function ContactPage() {
             Let&apos;s bring smarter studying to your campus.
           </h1>
           <p className="mt-4 text-lg text-slate-200">
-            Reach out for pilot programs, student organization partnerships, or
-            early institutional access.
+            Reach out for student organization partnerships, campus adoption, or
+            product support.
           </p>
         </section>
 
@@ -26,21 +26,21 @@ export default function ContactPage() {
             <p className="mt-2 text-slate-300">Location: United States (remote-first team)</p>
             <div className="mt-6 rounded-lg border border-cyan-300/20 bg-cyan-300/10 p-4">
               <p className="text-sm text-cyan-100">
-                Want to be part of the launch cohort? We are inviting student
-                leaders and early adopters now.
+                Already ready to use ClassIntel? Create your account and start a
+                course workspace now.
               </p>
               <Link
-                href="/#early-access"
+                href="/auth/sign-in"
                 className="mt-3 inline-flex rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Join Early Access
+                Get Started
               </Link>
             </div>
           </article>
 
           <form className="rounded-2xl border border-white/10 bg-slate-900/75 p-6 shadow-xl shadow-slate-950/30">
             <h2 className="text-2xl font-semibold">Send a Message</h2>
-            <p className="mt-2 text-sm text-slate-300">We&apos;ll follow up with details and next steps.</p>
+            <p className="mt-2 text-sm text-slate-300">We&apos;ll follow up with practical next steps.</p>
 
             <div className="mt-5 space-y-4">
               <label className="block text-sm">
@@ -67,12 +67,12 @@ export default function ContactPage() {
                   className="w-full rounded-lg border border-slate-600 bg-slate-950/80 px-3 py-2 focus:border-cyan-300 focus:outline-none"
                 />
               </label>
-              <button
-                type="button"
-                className="rounded-lg bg-cyan-400 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
+              <a
+                href="mailto:hello@classintel.com?subject=ClassIntel%20Question"
+                className="inline-flex rounded-lg bg-cyan-400 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Send Inquiry
-              </button>
+                Send Email
+              </a>
             </div>
           </form>
         </section>

@@ -16,7 +16,7 @@ type MarketingImageProps = {
 export function MarketingImage({
   src,
   alt,
-  fallbackLabel: _fallbackLabel,
+  fallbackLabel,
   aspectClassName = "aspect-video",
   imageClassName = "object-cover object-center",
   priority = false,
@@ -29,10 +29,14 @@ export function MarketingImage({
       className={`relative w-full overflow-hidden rounded-2xl ${aspectClassName} bg-slate-200/10 shadow-xl shadow-slate-950/40 ring-1 ring-white/10`}
     >
       {hasError ? (
-        <img
+        <Image
           src={src}
           alt={alt}
-          className={`h-full w-full ${imageClassName}`}
+          fill
+          unoptimized
+          sizes={sizes}
+          className={imageClassName}
+          aria-label={fallbackLabel}
         />
       ) : (
         <Image

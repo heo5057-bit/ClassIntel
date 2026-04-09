@@ -18,6 +18,12 @@ export const env = Object.freeze({
   get DATABASE_URL() {
     return getEnvironmentVariable("DATABASE_URL");
   },
+  get SUPABASE_SERVICE_ROLE_KEY() {
+    return process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  },
+  get SUPABASE_STORAGE_BUCKET() {
+    return process.env.SUPABASE_STORAGE_BUCKET ?? "course-materials";
+  },
   get STRIPE_SECRET_KEY() {
     return process.env.STRIPE_SECRET_KEY ?? "";
   },

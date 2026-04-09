@@ -4,7 +4,7 @@ import { signOut } from "@/src/auth/actions";
 import { getUserCourses } from "@/src/domain/course/course-service";
 import { upsertUserProfile } from "@/src/persistence/user-profile-repository";
 import { createSupabaseServerClient } from "@/src/supabase/server";
-import { createCourseAction } from "@/app/dashboard/actions";
+import { createCourseAction, deleteCourseAction } from "@/app/dashboard/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +38,8 @@ export default async function DashboardPage() {
               Welcome back{user.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ""}
             </h1>
             <p className="mt-2 text-slate-300">
-              Create your first course to start analyzing professor-specific
-              materials.
+              Build course workspaces, upload materials, and generate
+              Professor Mode study outputs.
             </p>
           </div>
 
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
               href="/"
               className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
             >
-              Home
+              Product Home
             </Link>
             <form action={signOut}>
               <button className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500">
@@ -60,10 +60,10 @@ export default async function DashboardPage() {
 
         <div className="mt-10 grid gap-8 lg:grid-cols-3">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 lg:col-span-1">
-            <h2 className="text-lg font-semibold">Create Course</h2>
+            <h2 className="text-lg font-semibold">Create Course Workspace</h2>
             <p className="mt-2 text-sm text-slate-400">
-              Add each class once. Uploads, analysis, and quizzes will attach
-              to a course.
+              Add each class once. Uploads, analysis, and all study outputs
+              are organized per course.
             </p>
 
             <form action={createCourseAction} className="mt-5 space-y-4">
@@ -102,10 +102,16 @@ export default async function DashboardPage() {
           </section>
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 lg:col-span-2">
-            <h2 className="text-lg font-semibold">Your Courses</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Your Course Workspaces</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Live Product Mode
+              </p>
+            </div>
             {courses.length === 0 ? (
               <p className="mt-3 rounded-lg border border-dashed border-slate-700 bg-slate-950/40 p-4 text-sm text-slate-400">
-                No courses yet. Create one to unlock file upload and analysis.
+                No courses yet. Create your first workspace to upload
+                materials and generate study outputs.
               </p>
             ) : (
               <ul className="mt-4 space-y-3">
@@ -114,11 +120,29 @@ export default async function DashboardPage() {
                     key={course.id}
                     className="rounded-lg border border-slate-700 bg-slate-950/50 p-4"
                   >
-                    <p className="font-medium">{course.name}</p>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {course.code ? `Code: ${course.code}` : "No code"}{" "}
-                      {course.term ? `• Term: ${course.term}` : ""}
-                    </p>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{course.name}</p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          {course.code ? `Code: ${course.code}` : "No code"}{" "}
+                          {course.term ? `• Term: ${course.term}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/dashboard/courses/${course.id}`}
+                          className="rounded-md bg-cyan-500 px-3 py-1.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+                        >
+                          Open Workspace
+                        </Link>
+                        <form action={deleteCourseAction}>
+                          <input type="hidden" name="courseId" value={course.id} />
+                          <button className="rounded-md border border-slate-600 px-3 py-1.5 text-sm text-slate-200 hover:border-rose-400 hover:text-rose-200">
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>

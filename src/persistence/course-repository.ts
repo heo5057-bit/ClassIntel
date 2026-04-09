@@ -24,3 +24,26 @@ export async function listCoursesForUser(userId: string): Promise<Course[]> {
   });
 }
 
+export async function getCourseByIdForUser(input: {
+  courseId: string;
+  userId: string;
+}): Promise<Course | null> {
+  return prisma.course.findFirst({
+    where: {
+      id: input.courseId,
+      userId: input.userId,
+    },
+  });
+}
+
+export async function deleteCourseByIdForUser(input: {
+  courseId: string;
+  userId: string;
+}): Promise<void> {
+  await prisma.course.deleteMany({
+    where: {
+      id: input.courseId,
+      userId: input.userId,
+    },
+  });
+}

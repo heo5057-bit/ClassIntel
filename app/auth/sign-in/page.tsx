@@ -61,7 +61,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             href="/"
             className="mt-8 inline-flex w-fit rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
           >
-            Back to landing page
+            Back to Home
           </Link>
         </div>
 

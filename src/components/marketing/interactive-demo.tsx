@@ -57,7 +57,7 @@ export function InteractiveDemo() {
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/90" />
           </div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-            ClassIntel Demo
+            ClassIntel Workflow Preview
           </p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function InteractiveDemo() {
         <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/70 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">
-              Live Product Preview
+              Pattern-Based Analysis Snapshot
             </p>
             <span className="rounded-md border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-1 text-xs font-semibold text-cyan-200">
               Confidence Model Enabled
